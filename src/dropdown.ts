@@ -45,8 +45,8 @@ export class Dropdown {
       const item: any = $(evt.currentTarget).data('item');
       this.itemSelectedLaunchEvent(item);
 
-		evt.preventDefault();
-		return false; //prevent browser from redirecting to #
+      evt.preventDefault();
+      return false; //prevent browser from redirecting to #
 	});
 
     this._dd.on('keyup', (evt: JQueryEventObject) => {
@@ -284,8 +284,8 @@ export class DropdownV4 {
       const item: any = $(evt.currentTarget).data('item');
       this.itemSelectedLaunchEvent(item);
 
-		evt.preventDefault();
-		return false; //prevent browser from redirecting to #
+      evt.preventDefault();
+      return false; //prevent browser from redirecting to #
 	});
 
     this._dd.on('keyup', (evt: JQueryEventObject) => {

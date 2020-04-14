@@ -219,7 +219,9 @@ export class AutoComplete {
             }
           }
           this._dd.hide();
-          break;
+
+          evt.preventDefault();
+          return false; //prevent browser from redirecting to #
       }
     });
 
