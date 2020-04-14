@@ -21,6 +21,10 @@ Features
 * **i18n.** Use ``data-*`` attributes to specify the strings to use in case of errors/noresults.
 * **Styles.** No custom styles. Uses standard Bootstrap's dropdown.
 
+.. toctree::
+   :hidden:
+
+   index
 
 Getting Started
 ---------------
@@ -36,14 +40,27 @@ Using CDN (thanks to JSDelivr)
 .. code-block:: html
     :caption: STABLE version |release|
 
-    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.2.1/dist/latest/bootstrap-autocomplete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.4/dist/latest/bootstrap-autocomplete.min.js"></script>
 
 .. code-block:: html
     :caption: Latest version (this is the development branch)
 
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@master/dist/latest/bootstrap-autocomplete.min.js"></script>
 
+Using NPM
+
+.. code-block:: console
+
+    npm install bootstrap-autocomplete
+
+Using YARN
+
+.. code-block:: console
+
+    yarn add bootstrap-autocomplete
+
 That's it! Go on to enhance your text fields! :)
+
 
 Basic usage
 -----------
@@ -154,6 +171,10 @@ And custom.
 
 ``autocomplete.freevalue`` - (evt, value) The text field contains `value` as the custom value (i.e. not selected from the choices dropdown).
 
+``autocomplete.dd.shown`` - (evt) **V4 only.** Fired when the autocomplete dropdown is shown.
+
+``autocomplete.dd.hidden`` - (evt) **V4 only.** Fired when the autocomplete dropdown is hidden.
+
 Reference
 ---------
 
@@ -193,6 +214,15 @@ Configuration options
 
     Default: ``No results``. Text to show when no results found.
 
+.. attribute:: .bootstrapVersion
+
+    Default: ``auto``. Specify Boostrap Version. Default is autodetect. 
+    Values: ``auto``, ``4``, ``3``
+
+.. attribute:: .preventEnter
+
+    Default: ``false``. Prevent default Enter behavior. Setting this to `true` is useful to prevent form submit.
+
 .. attribute:: .resolverSettings
 
     Object to specify parameters used by default resolver.
@@ -201,52 +231,64 @@ Configuration options
 
         Url used by default resolver to perform lookup query.
 
+    .. attribute:: .fail
+
+        Default: `undefined`. Callback in case of AJAX error.
+
+    .. attribute:: .requestThrottling
+
+        Default: ``500``. Time to wait in ms before starting a remote request.
+
 .. attribute:: .events
 
     Object to specify custom event callbacks.
 
     .. attribute:: .search
 
-        .. function:: func(qry, callback)
+        .. function:: func(qry, callback, origJQElement)
 
             Function called to perform a lookup.
 
             :param string qry: Query string.
             :param callback: Callback function to process results.
                                 Called passing the **list** of results ``callback(results)``.
+            :param JQuery origJQElement: Original jQuery element.
 
     .. attribute:: .searchPost
 
-        .. function:: func(resultsFromServer)
+        .. function:: func(resultsFromServer, origJQElement)
 
             Function called to manipulate server response.
             Bootstrap Autocomplete needs a list of items. Use this function to convert any server response in
             a list of items without reimplementing the default AJAX server lookup.
 
             :param resultsFromServer: Result received from server. Using the default resolver this is an object.
+            :param JQuery origJQElement: Original jQuery element.
             :returns: List of items.
     
     `Following events are available to fine tune every lookup aspect. Rarely used in common scenarios`
 
     .. attribute:: .typed
 
-        .. function:: func(newValue)
+        .. function:: func(newValue, origJQElement)
 
             Field value changed. Use this function to change the searched value (like prefixing it with some string, 
             filter some characters, ...). Or to stop lookup for certain values.
 
             :param string newValue: New value.
+            :param JQuery origJQElement: Original jQuery element.
             :returns: (Un)modified value or ``false`` to stop the execution.
     
 
     .. attribute:: .searchPre
 
-        .. function:: func(newValue)
+        .. function:: func(newValue, origJQElement)
 
             Before starting the search. Like in the ``typed`` event, this function can change the search value. The difference is
             this event is called `after` minLength checks.
 
             :param string newValue: New value.
+            :param JQuery origJQElement: Original jQuery element.
             :returns: (Un)modified value or ``false`` to stop the execution.
 
     As a reference the lookup workflow calls events in the following order::
@@ -264,6 +306,17 @@ To set an initial or change the value of the field.
 .. code-block:: javascript
 
     $('.myAutoSelect').autoComplete('set', { value: myValue, text: myText });
+
+Clear value
+***********
+
+To clear the value.
+
+.. code-block:: javascript
+
+    $('.myAutoSelect').autoComplete('set', null);
+    // or
+    $('.myAutoSelect').autoComplete('clear');
 
 Customize results using default AJAX resolver
 *********************************************
@@ -286,7 +339,7 @@ This is useful to bypass the customization of the entire search AJAX call.
 Demo and Examples
 -----------------
 
-You can view Demo and Examples `here <https://raw.githack.com/xcash/bootstrap-autocomplete/master/dist/latest/index4.html>`_.
+You can view Demo and Examples `here <https://raw.githack.com/xcash/bootstrap-autocomplete/master/dist/latest/index.html>`_.
 
 
 Translating messages
@@ -305,7 +358,7 @@ To customize "no results" message use the following markup.
 Issues, Support and New Features requests
 =========================================
 
-Feel free to post a new issue `here <https://github.com/xcash/bootstrap-autocomplete/issues>`_
+Feel free to post a `new issue <https://github.com/xcash/bootstrap-autocomplete/issues>`_
 
 Development Environment
 =======================
@@ -314,6 +367,14 @@ To setup an environment to develop Bootstrap-Autocomplete you need only Docker a
 
 The source is in the TypeScript language in the ``src`` directory while the documentation is
 generated using Sphinx and resides in the ``docs`` directory.
+
+Create the development containers:
+
+    docker-compose build --pull
+
+Install dependencies (first time and to update):
+
+    docker-compose run --rm tools yarn install
 
 To start the environment::
 

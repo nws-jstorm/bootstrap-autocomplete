@@ -8,19 +8,26 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+		<style type="text/css">
+			.dropdown-menu {
+				overflow: scroll;
+				max-width: 400px;
+				max-height: 120px;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="container">
 			<h1 class="border-bottom">Bootstrap Autocomplete (for Bootstrap version 4)</h1>
 			<p>
-				This page acts like a Demo page and a Testing page.
+				This page acts like a Demo page and a Testing page. Here we are testing issue #20, solving a bug in which a scrollable dropdown inside a modal was closed when clicking on the scrollbar.
 			</p>
 			<form>
 				<fieldset>
 					<legend class="border-bottom">AJAX</legend>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							Basic (<a href="testdata/test-list.json">list of strings</a>)
+							Basic (<a href="test-list.json">list of strings</a>)
 						</label>
 						<div class="col-lg-9">
 							<input class="form-control basicAutoComplete" type="text" autocomplete="off">
@@ -30,7 +37,7 @@
 					</div>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							Advanced (<a href="testdata/test-dict.json">complex object</a>)
+							Advanced (<a href="test-dict.json">complex object</a>)
 						</label>
 						<div class="col-lg-9">
 							<input class="form-control advancedAutoComplete" type="text" autocomplete="off" placeholder="type to search...">
@@ -38,7 +45,7 @@
 					</div>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							Advanced (<a href="testdata/test-dict.json">complex object</a> - custom formatting)
+							Advanced (<a href="test-dict.json">complex object</a> - custom formatting)
 						</label>
 						<div class="col-lg-9">
 							<input class="form-control advanced2AutoComplete" type="text" autocomplete="off">
@@ -64,33 +71,33 @@
 					</div>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							Simple (<a href="testdata/test-select-simple.json">list of { value, strings }</a>)
+							Simple (<a href="test-select-simple.json">list of { value, strings }</a>)
 						</label>
 						<div class="col-lg-9">
 							<select class="form-control basicAutoSelect" name="simple_select" 
 								placeholder="type to search..." 
-								data-url="testdata/test-select-simple.json" autocomplete="off"></select>
+								data-url="test-select-simple.json" autocomplete="off"></select>
 							<code class="basicAutoSelectSelected"></code>
 						</div>
 					</div>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							Default Selected (<a href="testdata/test-select-simple.json">list of { value, strings }</a>)
+							Default Selected (<a href="test-select-simple.json">list of { value, strings }</a>)
 						</label>
 						<div class="col-lg-9">
 							<select class="form-control defaultAutoSelect" id="dAS" name="default_select" 
-								data-url="testdata/test-select-simple.json"
+								data-url="test-select-simple.json"
 								data-default-value="3" data-default-text="Docker"
 								autocomplete="off"></select>
 						</div>
 					</div>
 					<div class="form-row mb-3">
 						<label class="col-lg-3">
-							No results (<a href="testdata/test-empty.json">empty list</a>)
+							No results (<a href="test-empty.json">empty list</a>)
 						</label>
 						<div class="col-lg-9">
 							<select class="form-control emptyAutoSelect" name="empty_select" 
-								data-url="testdata/test-empty.json"
+								data-url="test-empty.json"
 								data-noresults-text="Nothing to see here."
 								autocomplete="off"></select>
 						</div>
@@ -117,7 +124,7 @@
 						</label>
 						<div class="col-lg-9">
 							<select class="form-control changeAutoSelect" name="change_select" 
-								data-url="testdata/test-select-simple.json"
+								data-url="test-select-simple.json"
 								data-noresults-text="Nothing to see here."
 								data-default-value="x123" data-default-text="Default text before change"
 								autocomplete="off"></select>
@@ -159,7 +166,7 @@
 			<div class="modal-body">
 				<select class="form-control basicModalAutoSelect" name="simple_select" 
 					placeholder="type to search..." 
-					data-url="testdata/test-select-simple.json" autocomplete="off"></select>
+					data-url="test-select-simple.json" autocomplete="off"></select>
 				<code class="basicModalAutoSelectSelected"></code>
 			</div>
 			<div class="modal-footer">
@@ -172,13 +179,13 @@
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-		<script src="bootstrap-autocomplete.js"></script>
+		<script src="../bootstrap-autocomplete.js"></script>
 		<script>
 			$(function () {
 				// Basic
 				$('.basicAutoComplete').autoComplete({
 					resolverSettings: {
-						url: 'testdata/test-list.json'
+						url: 'test-list.json'
 					}
 				});
 
@@ -203,7 +210,7 @@
 						search: function (qry, callback) {
 							// let's do a custom ajax call
 							$.ajax(
-								'testdata/test-dict.json',
+								'test-dict.json',
 								{
 									data: { 'qry': qry}
 								}
@@ -231,7 +238,7 @@
 						search: function (qry, callback) {
 							// let's do a custom ajax call
 							$.ajax(
-								'testdata/test-dict.json',
+								'test-dict.json',
 								{
 									data: { 'qry': qry}
 								}
@@ -280,7 +287,7 @@
 				
 				$('.eventsAutoComplete').autoComplete({
 					resolverSettings: {
-						url: 'testdata/test-list.json'
+						url: 'test-list.json'
 					}
 				});
 				$('.eventsAutoComplete').on('change', function() {

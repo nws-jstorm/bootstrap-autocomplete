@@ -1,114 +1,134 @@
-'use strict';
-var gulp  = require('gulp'),
-	log = require('fancy-log'),
-	colors = require('ansi-colors'),
-	sourcemaps = require('gulp-sourcemaps'),
-	concat = require('gulp-concat'),	
-	uglify = require('gulp-uglify'),
-	plumber = require('gulp-plumber'),
-	size = require('gulp-size'),
-	rename = require('gulp-rename'),
-	webpack = require('webpack-stream'),
-	browserSync = require('browser-sync');
+const gulp = require('gulp');
+const log = require('fancy-log');
+const colors = require('ansi-colors');
+const uglify = require('gulp-uglify');
+const plumber = require('gulp-plumber');
+const tslint = require('gulp-tslint');
+const size = require('gulp-size');
+const rename = require('gulp-rename');
+const webpack = require('webpack-stream');
+const browserSync = require('browser-sync');
+const del = require('del');
+const webpackConfig = require('./webpack.config.js');
 
-var reload = browserSync.reload;
+const reload = browserSync.reload;
 
+var exitOnError = false;
 
-gulp.task('default',
-			function () {
-				log('\n'+
-					colors.green('GULP TASKS') + '\n\t' +
+async function help() {
+  log('\n' +
+    colors.green('GULP TASKS') + '\n\t' +
 
-					// default | help
-					colors.yellow('default | help') + '\n\t\t' +
-					'Shows the available tasks\n\n\t' +
+    // default | help
+    colors.yellow('default | help') + '\n\t\t' +
+    'Shows the available tasks\n\n\t' +
 
-					// monitor
-					colors.yellow('monitor') + '\n\t\t' +
-					'Real time check for changes in js files.\n\t\tIt handles errors and rebuilds the minified and compiled files.\n\n\t' +
-
-
-					// release
-					colors.yellow('release') + '\n\t\t' +
-					'Rebuild and concatenate all js files.\n\t\tMinifies and uglifies JS for deploy.\n\t\t'
-
-				);
-			}
-);
+    // monitor
+    colors.yellow('monitor') + '\n\t\t' +
+    'Real time check for changes in js files.\n\t\tIt handles errors and rebuilds the minified and compiled files.\n\n\t' +
 
 
-gulp.task('monitor', function () {
-	gulp.series('build-js', function(done) {
-		done();
-		gulp.parallel('watch', 'dev-server', function(done) {
-			done();
-		})();
-	})();
-});
+    // release
+    colors.yellow('release') + '\n\t\t' +
+    'Rebuild and concatenate all js files.\n\t\tMinifies and uglifies JS for deploy.\n\t\t'
 
-gulp.task('release', function () {
-	gulp.series('build-js', 'dist-min', function(done) {
-		done();
-	})();
-});
+  );
+}
 
-gulp.task('watch', function () {
-	gulp.watch('src/**/*', gulp.series('build-js', function (done) {
-		reload();
-		done();
-	}));
-});
+function errorHandler(error) {
+  if (exitOnError === false) {
+    return this.emit('end');
+  }
+}
 
-gulp.task('build-js', function () {
-	// copy index.html
-	gulp.src('src/index.html')
-		.pipe(gulp.dest('dist/latest/'));
-	gulp.src('src/index4.html')
-		.pipe(gulp.dest('dist/latest/'));
-	// copy testdata
-	gulp.src('src/testdata/*')
-		.pipe(gulp.dest('dist/latest/testdata/'));
-	return gulp.src('src/main.ts')
-		.pipe(plumber({
-			errorHandler: function (error) {
-				console.log(error.plugin, error.message, '\n');
-				return this.emit('end');
-			}
-		}))
-		.pipe(webpack( require('./webpack.config.js') ))
-		.pipe(rename('bootstrap-autocomplete.js'))
-		.pipe(gulp.dest('dist/latest/'));
-});
+function cleanDist() {
+  return del('dist/**', { force: true });
+}
 
-gulp.task('dist-min', function () {
-	return gulp.src('dist/latest/bootstrap-autocomplete.js')
-		.pipe(rename({
-			extname: '.min.js'
-		}))
-		.pipe(size({title: 'PRE-MINIFY'}))
-		.pipe(uglify({ mangle:true })) 
-		.pipe(size({title: 'POST-MINIFY'}))
-		.pipe(gulp.dest('dist/latest'));
-});
+function copyHtml() {
+  return gulp.src('src/index*.html')
+    .pipe(gulp.dest('dist/latest/'));
+}
 
-gulp.task('dev-server', function() {
-	browserSync({
-		server: {
-			baseDir: 'dist/latest'
-		},
-		open: false,
-	});
+function copyTestData() {
+  return gulp.src('src/testdata/*')
+    .pipe(gulp.dest('dist/latest/testdata/'));
+}
 
-	gulp.watch(['*.html', '*.js', 'testdata/*'], {cwd: 'dist/latest'}, reload);
+function compileJs() {
+  return gulp.src('src/*.ts')
+    .pipe(plumber({
+      errorHandler: errorHandler
+    }))
+    .pipe(tslint({ formatter: 'verbose' }))
+    .pipe(tslint.report())
+    .pipe(webpack(webpackConfig))
+    .pipe(rename('bootstrap-autocomplete.js'))
+    .pipe(gulp.dest('dist/latest/'));
+}
 
-	/*
-	gulp.src('dist/latest')
-    .pipe(server({
-	  host: '0.0.0.0',
-      livereload: {
-		enable: true,
-	  	clientConsole: false
-	  }
-		}));
-	*/
-});
+
+function build(cb) {
+  return gulp.series(
+    copyHtml,
+    copyTestData,
+    compileJs
+  )(cb);
+}
+
+function watch(cb) {
+  gulp.watch('src/**/*', gulp.series(
+    build,
+    function (done) {
+      reload();
+      done();
+    }), cb)
+}
+
+function monitor(cb) {
+  return gulp.series(
+    build,
+    gulp.parallel(watch, devServer)
+  )(cb);
+}
+
+async function devServer() {
+  browserSync({
+    server: {
+      baseDir: 'dist/latest'
+    },
+    open: false,
+  });
+
+  gulp.watch(['*.html', '*.js', 'testdata/*'], { cwd: 'dist/latest' }, reload);
+}
+
+function minify() {
+  return gulp.src('dist/latest/bootstrap-autocomplete.js')
+    .pipe(rename({
+      extname: '.min.js'
+    }))
+    .pipe(size({ title: 'PRE-MINIFY' }))
+    .pipe(uglify({ mangle: true }))
+    .pipe(size({ title: 'POST-MINIFY' }))
+    .pipe(gulp.dest('dist/latest'));
+}
+
+function release(cb) {
+  return gulp.series(
+    cleanDist,
+    build, minify
+  )(cb);
+}
+
+function test(cb) {
+  exitOnError = true;
+  return gulp.series(
+    compileJs
+  )(cb);
+}
+
+exports.default = help;
+exports.monitor = monitor;
+exports.release = release;
+exports.test = test;
